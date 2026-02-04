@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Lens2Prompt",
+  "description": "Transform any image into a detailed generative AI prompt. Perfect for reverse-engineering styles, subjects, and compositions for stable diffusion or midjourney.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
