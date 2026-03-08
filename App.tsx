@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { analyzeImage } from './services/geminiService';
 import { ImageItem, AnalysisResult } from './types';
@@ -140,10 +139,10 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="h-screen bg-black flex flex-col overflow-hidden text-neutral-200">
       {/* Navigation Bar */}
-      <nav className="border-b border-brand-muted/20 bg-black/90 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
+      <nav className="border-b border-brand-muted/20 bg-black/90 backdrop-blur-xl shrink-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-brand-accent flex items-center justify-center text-black font-black">
               <i className="fa-solid fa-camera"></i>
@@ -153,7 +152,7 @@ const App: React.FC = () => {
             </span>
           </div>
           
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-6">
             <button 
               onClick={() => setCurrentRoute('home')}
               className={`text-sm font-semibold transition-colors ${currentRoute === 'home' ? 'text-brand-accent' : 'text-brand-muted hover:text-brand-white'}`}>
@@ -179,7 +178,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setShowApiKeyModal(true)}
-              className="text-sm font-bold text-brand-muted hover:text-brand-white transition-colors flex items-center gap-2 bg-brand-muted/10 px-4 py-2 rounded-xl border border-brand-muted/20 hover:border-brand-accent/50">
+              className="text-[11px] font-bold text-brand-muted hover:text-brand-white transition-colors flex items-center gap-2 bg-brand-muted/10 px-3 py-1.5 rounded-lg border border-brand-muted/20 hover:border-brand-accent/50">
               <i className="fa-solid fa-key text-brand-accent"></i>
               {apiKey ? 'API Key Configured' : 'Set API Key'}
             </button>
@@ -232,363 +231,275 @@ const App: React.FC = () => {
       )}
 
       {currentRoute === 'home' && (
-      <div className="max-w-6xl mx-auto px-4 py-16">
-        <header className="text-center mb-16 space-y-4">
-          <h1 className="text-7xl font-black tracking-tighter">
-            <span className="text-transparent bg-clip-text bg-brand-accent">
-              Lens2Prompt
-            </span>
-          </h1>
-        <p className="text-brand-muted text-xl font-medium max-w-2xl mx-auto">
-          Deconstruct visual aesthetics and <span className="text-brand-accent">re-imagine</span> them with custom styles.
-        </p>
-      </header>
-
-      <main className="space-y-16">
-        {/* Dark Upload Zone */}
-        <section className="relative">
-          <label className="group block w-full bg-brand-base/60 backdrop-blur-md border-2 border-dashed border-neutral-800 rounded-[2.5rem] p-16 text-center cursor-pointer hover:border-brand-accent/50 hover:bg-brand-accent/5 transition-all duration-500 shadow-2xl">
-            <div className="flex flex-col items-center">
-              <div className="w-24 h-24 bg-brand-accent/10 rounded-full flex items-center justify-center text-brand-accent mb-6 group-hover:scale-110 group-hover:bg-brand-accent/20 transition-all duration-500">
-                <i className="fa-solid fa-cloud-arrow-up text-4xl"></i>
-              </div>
-              <span className="text-2xl font-bold text-slate-200 mb-2">Upload your image</span>
-              <span className="text-slate-500 font-medium tracking-wide uppercase text-xs">Multi-selection enabled • JPG • PNG • WEBP</span>
-            </div>
-            <input type="file" className="hidden" accept="image/*" multiple onChange={handleFileChange} />
-          </label>
-          
-          {images.length > 0 && images.some(i => i.status !== 'completed') && (
-             <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 z-10">
-                <button
-                  onClick={processAll}
-                  disabled={globalLoading}
-                  className="bg-brand-accent hover:bg-brand-accent text-brand-white px-10 py-5 rounded-2xl font-black text-lg flex items-center gap-4 shadow-[0_0_40px_rgba(249,115,22,0.3)] disabled:opacity-30 disabled:shadow-none transition-all hover:scale-105 active:scale-95"
-                >
-                  {globalLoading ? <i className="fa-solid fa-sync animate-spin"></i> : <i className="fa-solid fa-wand-sparkles"></i>}
-                  Synthesize Queue ({images.filter(i => i.status !== 'completed').length})
-                </button>
-             </div>
-          )}
-        </section>
-
-        {/* Workspace Grid */}
-        <div className="grid grid-cols-1 gap-12 pt-10">
-          {images.map((item) => (
-            <div key={item.id} className="group bg-brand-surface/50 backdrop-blur-2xl rounded-[3rem] border border-brand-muted/20 overflow-hidden flex flex-col lg:flex-row min-h-[500px] shadow-2xl hover:border-brand-muted/20 transition-all duration-500">
-              {/* Image Panel */}
-              <div className="lg:w-2/5 relative overflow-hidden bg-brand-base flex items-center justify-center group/img">
-                <img src={item.preview} alt="Input" className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-700 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
-                
-                <button 
-                  onClick={() => removeItem(item.id)}
-                  className="absolute top-6 left-6 w-12 h-12 bg-brand-base/60 backdrop-blur-xl text-brand-white rounded-2xl flex items-center justify-center hover:bg-red-500/80 transition-all hover:rotate-90 z-20"
-                >
-                  <i className="fa-solid fa-plus rotate-45"></i>
-                </button>
-
-                {item.status === 'idle' && (
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 z-10">
-                    <button 
-                      onClick={() => processItem(item.id)}
-                      className="bg-white text-black px-8 py-4 rounded-2xl font-black shadow-2xl hover:bg-brand-accent hover:text-brand-white transition-colors"
-                    >
-                      Extract Aesthetic
-                    </button>
-                  </div>
-                )}
-                
-                {/* Status Badge */}
-                <div className="absolute bottom-6 left-6 flex items-center gap-2 bg-brand-base/40 backdrop-blur-md px-4 py-2 rounded-full border border-brand-muted/20 z-10">
-                  <div className={`w-2 h-2 rounded-full ${
-                    item.status === 'completed' ? 'bg-brand-accent animate-pulse' : 
-                    item.status === 'loading' ? 'bg-amber-400 animate-spin' : 
-                    item.status === 'error' ? 'bg-red-400' : 'bg-neutral-500'
-                  }`}></div>
-                  <span className="text-[10px] uppercase font-black tracking-widest text-brand-muted">
-                    {item.status}
-                  </span>
-                </div>
-              </div>
-
-              {/* Analysis & Refinement Panel */}
-              <div className="flex-1 p-8 lg:p-12 flex flex-col justify-center bg-gradient-to-br from-transparent to-white/[0.02]">
-                {item.status === 'loading' && (
-                  <div className="flex flex-col items-center justify-center h-full space-y-6 py-20">
-                    <div className="relative">
-                       <div className="w-24 h-24 border-b-4 border-brand-accent rounded-full animate-spin"></div>
-                       <div className="absolute inset-0 flex items-center justify-center">
-                          <i className="fa-solid fa-brain text-brand-accent text-2xl animate-pulse"></i>
-                       </div>
-                    </div>
-                    <p className="font-black text-slate-500 uppercase tracking-[0.4em] text-xs">Decoding Latent Space...</p>
-                  </div>
-                )}
-
-                {item.status === 'error' && (
-                  <div className="text-center p-10 space-y-6">
-                    <div className="text-red-500/20 text-8xl">
-                      <i className="fa-solid fa-bolt-slash"></i>
-                    </div>
-                    <p className="text-xl font-bold text-red-400">{item.error}</p>
-                    <button onClick={() => processItem(item.id)} className="bg-red-500/10 text-red-400 px-8 py-3 rounded-2xl font-bold hover:bg-red-500/20 transition-all">Retry Computation</button>
-                  </div>
-                )}
-
-                {item.status === 'idle' && !item.result && (
-                  <div className="flex flex-col items-center justify-center h-full text-slate-800 space-y-6">
-                    <i className="fa-solid fa-fingerprint text-[10rem] opacity-20"></i>
-                    <p className="font-black uppercase tracking-[0.3em] text-sm opacity-30">Awaiting Neural Signature</p>
-                  </div>
-                )}
-
-                {item.result && (
-                  <div className="animate-in fade-in zoom-in-95 duration-700 flex flex-col h-full space-y-8">
-                    {/* Header */}
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="text-xs font-black text-brand-accent uppercase tracking-[0.4em] mb-2">Neural Output</h3>
-                        <p className="text-3xl font-black text-brand-white tracking-tight">Refined Prompt</p>
-                      </div>
-                      <button 
-                        onClick={() => copyToClipboard(item.result!.prompt)}
-                        className="w-16 h-16 bg-neutral-800 text-brand-muted rounded-[1.5rem] hover:bg-brand-accent hover:text-brand-white transition-all hover:scale-110 active:scale-95 shadow-xl border border-brand-muted/20"
-                        title="Copy Prompt"
-                      >
-                        <i className="fa-regular fa-copy text-2xl"></i>
-                      </button>
-                    </div>
-                    
-                    {/* Prompt Box */}
-                    <div className="bg-brand-base/40 p-8 rounded-[2.5rem] border border-brand-muted/20 relative group hover:border-brand-muted/20 transition-colors">
-                      <p className="text-xl text-brand-muted leading-relaxed font-medium">
-                        {item.result.prompt}
-                      </p>
-                      <div className="absolute -top-4 -right-4 bg-neutral-800 px-4 py-1 rounded-full text-[10px] font-black text-brand-muted/70 border border-brand-muted/20 uppercase tracking-widest">
-                        Ready to Generate
-                      </div>
-                    </div>
-
-                    {/* Refinement Controls */}
-                    <div className="space-y-6">
-                      <div>
-                        <p className="text-[10px] font-black uppercase text-brand-muted/70 tracking-widest mb-3 flex items-center gap-2">
-                          <i className="fa-solid fa-palette text-brand-accent"></i> Inject Color Theme
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {COLOR_THEMES.map(theme => (
-                            <button 
-                              key={theme}
-                              onClick={() => updateRefinement(item.id, 'color', theme)}
-                              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
-                                item.selectedColor === theme 
-                                ? 'bg-brand-accent text-brand-white border-brand-accent shadow-[0_0_15px_rgba(249,115,22,0.4)]' 
-                                : 'bg-neutral-800/40 text-brand-muted border-brand-muted/20 hover:bg-neutral-800'
-                              }`}
-                            >
-                              {theme}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <p className="text-[10px] font-black uppercase text-brand-muted/70 tracking-widest mb-3 flex items-center gap-2">
-                          <i className="fa-solid fa-brush text-brand-accent"></i> Overlay Art Style
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {ART_STYLES.map(style => (
-                            <button 
-                              key={style}
-                              onClick={() => updateRefinement(item.id, 'style', style)}
-                              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
-                                item.selectedStyle === style 
-                                ? 'bg-amber-600 text-brand-white border-brand-accent shadow-[0_0_15px_rgba(245,158,11,0.4)]' 
-                                : 'bg-neutral-800/40 text-brand-muted border-brand-muted/20 hover:bg-neutral-800'
-                              }`}
-                            >
-                              {style}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() => processItem(item.id)}
-                        className="w-full bg-brand-accent text-brand-white py-4 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-lg hover:shadow-brand-accent/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-3"
-                      >
-                        <i className="fa-solid fa-wand-magic-sparkles"></i>
-                        Regenerate with Selections
-                      </button>
-                    </div>
-
-                    {/* Metadata Badges */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-brand-muted/20">
-                      <CompactAttr label="Style" value={item.result.metadata.style} />
-                      <CompactAttr label="Subject" value={item.result.metadata.subject} />
-                      <CompactAttr label="Light" value={item.result.metadata.lighting} />
-                      <CompactAttr label="View" value={item.result.metadata.composition} />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-
+      <div className="flex-1 max-w-7xl w-full mx-auto px-4 py-4 flex flex-col min-h-0 overflow-hidden">
         {images.length === 0 && (
-          <div className="text-center py-32 opacity-10 grayscale">
-            <i className="fa-solid fa-images text-[14rem] mb-8"></i>
-            <p className="text-3xl font-black tracking-[0.5em] uppercase">No Inspiration Loaded</p>
-          </div>
+          <header className="text-center mb-6 shrink-0 space-y-2">
+            <h1 className="text-5xl font-black tracking-tighter">
+              <span className="text-transparent bg-clip-text bg-brand-accent">
+                Lens2Prompt
+              </span>
+            </h1>
+            <p className="text-brand-muted text-lg font-medium max-w-2xl mx-auto">
+              Deconstruct visual aesthetics and <span className="text-brand-accent">re-imagine</span> them with custom styles.
+            </p>
+          </header>
         )}
-      </main>
+
+        <main className="flex-1 flex flex-col min-h-0 gap-4 relative">
+          {/* Dark Upload Zone */}
+          <section className={`shrink-0 transition-all duration-500 relative ${images.length > 0 ? 'h-20' : 'flex-1 flex flex-col items-center justify-center'}`}>
+            <label className={`group w-full h-full bg-brand-base/60 backdrop-blur-md border border-dashed border-brand-muted/40 hover:border-brand-accent/50 rounded-2xl flex cursor-pointer hover:bg-brand-accent/5 transition-all shadow-lg ${images.length > 0 ? 'flex-row items-center px-6' : 'flex-col items-center justify-center'}`}>
+              <div className={`bg-brand-accent/10 rounded-full flex items-center justify-center text-brand-accent transition-all group-hover:scale-110 group-hover:bg-brand-accent/20 ${images.length > 0 ? 'w-10 h-10 text-lg mr-4' : 'w-20 h-20 text-3xl mb-4'}`}>
+                <i className="fa-solid fa-cloud-arrow-up"></i>
+              </div>
+              <div className={`flex flex-col ${images.length > 0 ? 'text-left' : 'text-center'}`}>
+                <span className={`${images.length > 0 ? 'text-lg' : 'text-2xl'} font-bold text-slate-200`}>Upload your image</span>
+                <span className="text-brand-muted font-medium tracking-wide uppercase text-[10px]">Multi-selection enabled • JPG • PNG • WEBP</span>
+              </div>
+              <input type="file" className="hidden" accept="image/*" multiple onChange={handleFileChange} />
+            </label>
+            
+            {images.length > 0 && images.some(i => i.status !== 'completed') && (
+               <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
+                  <button
+                    onClick={processAll}
+                    disabled={globalLoading}
+                    className="bg-brand-accent hover:bg-brand-accent text-brand-white px-6 py-2.5 rounded-xl font-black text-xs flex items-center gap-3 shadow-[0_0_20px_rgba(249,115,22,0.3)] disabled:opacity-30 disabled:shadow-none transition-all hover:scale-[1.02] active:scale-95"
+                  >
+                    {globalLoading ? <i className="fa-solid fa-sync animate-spin text-sm"></i> : <i className="fa-solid fa-wand-sparkles text-sm"></i>}
+                    Synthesize ({images.filter(i => i.status !== 'completed').length})
+                  </button>
+               </div>
+            )}
+          </section>
+
+          {/* Workspace Area */}
+          {images.length > 0 && (
+            <div className="flex-1 overflow-y-auto min-h-0 pr-2 pb-2 space-y-4">
+              {images.map((item) => (
+                <div key={item.id} className="group bg-brand-surface/80 backdrop-blur-2xl rounded-[2rem] border border-brand-muted/20 overflow-hidden flex flex-row h-full max-h-[80vh] shadow-xl">
+                  {/* Image Panel */}
+                  <div className="w-1/3 shrink-0 relative overflow-hidden bg-brand-base flex items-center justify-center group/img">
+                    <img src={item.preview} alt="Input" className="w-full h-full object-cover opacity-80 group-hover/img:scale-105 transition-transform duration-700" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-40"></div>
+                    
+                    <button 
+                      onClick={() => removeItem(item.id)}
+                      className="absolute top-4 left-4 w-8 h-8 bg-black/60 backdrop-blur-xl text-brand-white rounded-xl flex items-center justify-center hover:bg-red-500 transition-all hover:rotate-90 z-20 text-xs shadow-lg"
+                    >
+                      <i className="fa-solid fa-times"></i>
+                    </button>
+
+                    {item.status === 'idle' && (
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 z-10 bg-black/40 backdrop-blur-sm">
+                        <button 
+                          onClick={() => processItem(item.id)}
+                          className="bg-brand-accent text-brand-white px-6 py-3 rounded-xl font-black shadow-xl hover:scale-105 transition-transform text-sm"
+                        >
+                          Extract Aesthetic
+                        </button>
+                      </div>
+                    )}
+                    
+                    {/* Status Badge */}
+                    <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-brand-muted/20 z-10 shadow-lg">
+                      <div className={`w-1.5 h-1.5 rounded-full ${
+                        item.status === 'completed' ? 'bg-brand-accent animate-pulse' : 
+                        item.status === 'loading' ? 'bg-amber-400 animate-spin' : 
+                        item.status === 'error' ? 'bg-red-400' : 'bg-neutral-500'
+                      }`}></div>
+                      <span className="text-[9px] uppercase font-black tracking-widest text-brand-muted">
+                        {item.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Analysis Panel */}
+                  <div className="flex-1 p-6 flex flex-col justify-start overflow-y-auto bg-gradient-to-br from-transparent to-white/[0.02]">
+                    {item.status === 'loading' && (
+                      <div className="flex flex-col items-center justify-center h-full space-y-6 w-full max-w-sm mx-auto">
+                        <div className="w-16 h-16 bg-brand-accent/10 rounded-2xl flex items-center justify-center border border-brand-accent/30 shadow-[0_0_20px_rgba(255,163,26,0.2)]">
+                          <i className="fa-solid fa-wand-magic-sparkles text-brand-accent text-2xl animate-pulse"></i>
+                        </div>
+                        
+                        <div className="w-full space-y-2">
+                          <div className="flex justify-between items-end px-1">
+                            <span className="font-black text-brand-white tracking-widest text-[10px] uppercase">Synthesizing</span>
+                            <span className="text-brand-accent text-[9px] font-bold animate-pulse tracking-wider">PROCESSING</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-brand-base rounded-full overflow-hidden border border-brand-muted/20 relative shadow-inner">
+                            <div className="absolute top-0 bottom-0 left-0 w-2/3 bg-gradient-to-r from-transparent via-brand-accent to-transparent" 
+                                 style={{ animation: 'shimmerSweep 1.5s infinite linear' }}>
+                            </div>
+                            <style>{`@keyframes shimmerSweep { 0% { transform: translateX(-150%); } 100% { transform: translateX(150%); } }`}</style>
+                          </div>
+                        </div>
+                        <p className="text-brand-muted text-[9px] tracking-widest uppercase text-center mt-2">
+                          Analyzing visual semantics...
+                        </p>
+                      </div>
+                    )}
+
+                    {item.status === 'error' && (
+                      <div className="flex flex-col items-center justify-center h-full space-y-4">
+                        <i className="fa-solid fa-bolt-slash text-red-500/50 text-6xl"></i>
+                        <p className="text-sm font-bold text-red-400 text-center">{item.error}</p>
+                        <button onClick={() => processItem(item.id)} className="bg-red-500/10 text-red-400 px-6 py-2 rounded-xl font-bold hover:bg-red-500/20 text-xs">Retry Computation</button>
+                      </div>
+                    )}
+
+                    {item.status === 'idle' && !item.result && (
+                      <div className="flex flex-col items-center justify-center h-full text-brand-muted/20 space-y-4">
+                        <i className="fa-solid fa-fingerprint text-[6rem]"></i>
+                        <p className="font-black uppercase tracking-[0.3em] text-[10px]">Awaiting Signal</p>
+                      </div>
+                    )}
+
+                    {item.result && (
+                      <div className="animate-in fade-in zoom-in-95 duration-500 flex flex-col h-full space-y-4 pt-4">
+                        <div className="flex justify-between items-start shrink-0">
+                          <div>
+                            <h3 className="text-[10px] font-black text-brand-accent uppercase tracking-widest mb-1">Neural Output</h3>
+                            <p className="text-xl font-black text-brand-white tracking-tight">Refined Prompt</p>
+                          </div>
+                          <button 
+                            onClick={() => copyToClipboard(item.result!.prompt)}
+                            className="w-10 h-10 bg-brand-base text-brand-muted rounded-xl hover:bg-brand-accent hover:text-black transition-all hover:scale-105 active:scale-95 shadow-md border border-brand-muted/20 flex items-center justify-center"
+                            title="Copy Prompt"
+                          >
+                            <i className="fa-regular fa-copy text-lg"></i>
+                          </button>
+                        </div>
+                        
+                        <div className="bg-brand-base/60 p-4 rounded-2xl border border-brand-muted/20 relative group hover:border-brand-muted transition-colors flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-brand-muted/30 scrollbar-track-transparent">
+                          <p className="text-sm text-brand-muted leading-relaxed font-medium">
+                            {item.result.prompt}
+                          </p>
+                        </div>
+
+                        <div className="space-y-3 shrink-0">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-[9px] font-black uppercase text-brand-muted/70 tracking-widest mb-2"><i className="fa-solid fa-palette text-brand-accent"></i> Overlay Theme</p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {COLOR_THEMES.slice(0, 4).map(theme => (
+                                  <button key={theme} onClick={() => updateRefinement(item.id, 'color', theme)} className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all border ${item.selectedColor === theme ? 'bg-brand-accent text-black border-brand-accent' : 'bg-brand-base text-brand-muted border-brand-muted/20 hover:border-brand-accent/50'}`}>{theme}</button>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-[9px] font-black uppercase text-brand-muted/70 tracking-widest mb-2"><i className="fa-solid fa-brush text-brand-accent"></i> Style Bias</p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {ART_STYLES.slice(0, 4).map(style => (
+                                  <button key={style} onClick={() => updateRefinement(item.id, 'style', style)} className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all border ${item.selectedStyle === style ? 'bg-brand-accent text-black border-brand-accent' : 'bg-brand-base text-brand-muted border-brand-muted/20 hover:border-brand-accent/50'}`}>{style}</button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          {(item.selectedColor || item.selectedStyle) && (
+                            <button onClick={() => processItem(item.id)} className="w-full bg-brand-accent/10 border border-brand-accent/30 text-brand-accent py-2 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-brand-accent hover:text-black transition-all">
+                              <i className="fa-solid fa-wand-magic-sparkles mr-2"></i> Regenerate
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </main>
       </div>
       )}
 
       {currentRoute === 'about' && (
-        <div className="max-w-4xl mx-auto px-4 py-24 min-h-[70vh]">
-          <div className="bg-brand-surface/50 backdrop-blur-2xl rounded-[3rem] border border-brand-muted/20 p-12 md:p-16 shadow-2xl">
-            <div className="w-20 h-20 rounded-2xl bg-brand-accent flex items-center justify-center text-brand-white text-3xl mb-10 shadow-[0_0_30px_rgba(249,115,22,0.3)]">
+        <div className="flex-1 overflow-y-auto px-4 py-8 flex items-center justify-center">
+          <div className="max-w-3xl w-full bg-brand-surface/50 backdrop-blur-2xl rounded-3xl border border-brand-muted/20 p-8 md:p-10 shadow-2xl">
+            <div className="w-16 h-16 rounded-2xl bg-brand-accent flex items-center justify-center text-black text-2xl mb-6 shadow-[0_0_30px_rgba(249,115,22,0.3)]">
               <i className="fa-solid fa-bolt"></i>
             </div>
             
-            <h2 className="text-5xl font-black tracking-tighter text-brand-white mb-8">
-              What is <span className="text-transparent bg-clip-text bg-brand-accent">Lens2Prompt</span>?
+            <h2 className="text-4xl font-black tracking-tighter text-brand-white mb-6">
+              What is <span className="text-brand-accent">Lens2Prompt</span>?
             </h2>
             
-            <div className="space-y-8 text-lg text-brand-muted leading-relaxed font-medium">
-              <p>
-                Lens2Prompt is an advanced AI-powered aesthetic extraction engine. We built this tool to bridge the gap between visual inspiration and generative reproduction. 
-              </p>
+            <div className="space-y-6 text-sm text-brand-muted leading-relaxed font-medium">
+              <p>Lens2Prompt is an advanced AI-powered aesthetic extraction engine to bridge visual inspiration and generative reproduction.</p>
               
-              <div className="grid md:grid-cols-2 gap-8 my-12">
-                <div className="bg-brand-base/40 p-8 rounded-3xl border border-brand-muted/20">
-                  <i className="fa-solid fa-eye text-brand-accent text-2xl mb-4"></i>
-                  <h3 className="text-xl font-bold text-brand-white mb-2">1. Visual Analysis</h3>
-                  <p className="text-sm text-brand-muted">Upload any image and our neural networks deconstruct its core elements: lighting, composition, subject, and medium.</p>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-brand-base/60 p-5 rounded-2xl border border-brand-muted/20">
+                  <i className="fa-solid fa-eye text-brand-accent text-xl mb-3"></i>
+                  <h3 className="text-base font-bold text-brand-white mb-1">1. Visual Analysis</h3>
+                  <p className="text-[11px] text-brand-muted">Deconstructs core elements: lighting, composition, subject, and medium.</p>
                 </div>
-                <div className="bg-brand-base/40 p-8 rounded-3xl border border-brand-muted/20">
-                  <i className="fa-solid fa-wand-magic-sparkles text-brand-accent text-2xl mb-4"></i>
-                  <h3 className="text-xl font-bold text-brand-white mb-2">2. Prompt Synthesis</h3>
-                  <p className="text-sm text-brand-muted">We translate visual data into highly detailed text prompts optimized for models like Midjourney or Stable Diffusion.</p>
+                <div className="bg-brand-base/60 p-5 rounded-2xl border border-brand-muted/20">
+                  <i className="fa-solid fa-wand-magic-sparkles text-brand-accent text-xl mb-3"></i>
+                  <h3 className="text-base font-bold text-brand-white mb-1">2. Prompt Synthesis</h3>
+                  <p className="text-[11px] text-brand-muted">Translates visual data into highly detailed text prompts.</p>
                 </div>
               </div>
-
-              <p>
-                Whether you want to replicate a specific photography style, transform a sketch into a cyberpunk masterpiece, or just find the perfect words to describe a vibe, Lens2Prompt handles the complex prompt engineering for you.
-              </p>
-            </div>
-            
-            <div className="mt-16 pt-8 border-t border-brand-muted/20">
-              <button 
-                onClick={() => setCurrentRoute('home')}
-                className="bg-white text-black px-8 py-4 rounded-2xl font-black shadow-xl hover:bg-brand-accent hover:text-brand-white transition-all transform hover:-translate-y-1">
-                Try it out now <i className="fa-solid fa-arrow-right ml-2"></i>
-              </button>
             </div>
           </div>
         </div>
       )}
 
       {currentRoute === 'how-to' && (
-        <div className="max-w-4xl mx-auto px-4 py-24 min-h-[70vh]">
-          <div className="bg-brand-surface/50 backdrop-blur-2xl rounded-[3rem] border border-brand-muted/20 p-12 md:p-16 shadow-2xl">
-            <h2 className="text-4xl font-black text-brand-white mb-12 text-center">
-              How to Use <span className="text-transparent bg-clip-text bg-brand-accent">Lens2Prompt</span>
+        <div className="flex-1 overflow-y-auto px-4 py-8 flex items-center justify-center">
+          <div className="max-w-3xl w-full bg-brand-surface/50 backdrop-blur-2xl rounded-3xl border border-brand-muted/20 p-8 shadow-2xl flex flex-col items-center">
+            <h2 className="text-3xl font-black text-brand-white mb-8 text-center">
+              How to Use <span className="text-brand-accent">Lens2Prompt</span>
             </h2>
-            <div className="relative mt-16 max-w-2xl mx-auto">
-              {/* Vertical connecting line */}
-              <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-orange-500 via-amber-500 to-transparent z-0 hidden md:block"></div>
+            <div className="relative w-full max-w-xl">
+              <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-gradient-to-b from-brand-accent to-transparent z-0 hidden md:block"></div>
               
-              <div className="space-y-16 relative z-10">
-                <div className="flex gap-8 items-start group">
-                  <div className="w-12 h-12 rounded-full bg-brand-surface text-brand-accent flex items-center justify-center font-black text-xl flex-shrink-0 border-2 border-brand-accent shadow-[0_0_15px_rgba(249,115,22,0.5)] group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-white transition-all z-10 relative md:ml-0 mx-auto md:mx-0">
-                    1
+              <div className="space-y-6 relative z-10 w-full">
+                {[{ num: 1, icon: 'fa-key', title: 'Configure API Key', desc: 'Click "Set API Key" to use your own Gemini quota.' },
+                  { num: 2, icon: 'fa-upload', title: 'Upload Images', desc: 'Drag internal inspiration files to the dashed box.' },
+                  { num: 3, icon: 'fa-sliders', title: 'Synthesize', desc: 'Set themes and styles, then click process.' },
+                  { num: 4, icon: 'fa-copy', title: 'Copy Prompts', desc: 'Copy outputs for Midjourney or Stable Diffusion.' }].map(step => (
+                  <div key={step.num} className="flex gap-6 items-center group">
+                    <div className="w-10 h-10 rounded-full bg-brand-base text-brand-accent flex items-center justify-center font-black text-sm border-2 border-brand-accent shrink-0 relative z-10 mx-auto md:mx-0 shadow-[0_0_10px_rgba(255,163,26,0.5)]">
+                      {step.num}
+                    </div>
+                    <div className="bg-brand-muted/10 border border-brand-muted/20 rounded-2xl p-4 flex-1">
+                      <h3 className="text-sm font-bold text-brand-white mb-1 flex items-center gap-2">
+                        <i className={`fa-solid ${step.icon} text-brand-accent`}></i> {step.title}
+                      </h3>
+                      <p className="text-brand-muted/70 text-xs">{step.desc}</p>
+                    </div>
                   </div>
-                  <div className="bg-brand-muted/10 border border-brand-muted/20 rounded-3xl p-8 flex-grow group-hover:border-brand-accent/50 transition-colors">
-                    <h3 className="text-2xl font-black text-brand-white mb-3 flex items-center gap-3">
-                      <i className="fa-solid fa-key text-brand-accent"></i> Configure API Key
-                    </h3>
-                    <p className="text-brand-muted leading-relaxed text-sm">Before starting, click "Set API Key" in the top right. Paste your Google Gemini API key to securely allow the app to generate prompts locally.</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-8 items-start group">
-                  <div className="w-12 h-12 rounded-full bg-brand-surface text-brand-accent flex items-center justify-center font-black text-xl flex-shrink-0 border-2 border-brand-accent shadow-[0_0_15px_rgba(249,115,22,0.5)] group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-white transition-all z-10 relative md:ml-0 mx-auto md:mx-0">
-                    2
-                  </div>
-                  <div className="bg-brand-muted/10 border border-brand-muted/20 rounded-3xl p-8 flex-grow group-hover:border-brand-accent/50 transition-colors">
-                    <h3 className="text-2xl font-black text-brand-white mb-3 flex items-center gap-3">
-                      <i className="fa-solid fa-upload text-brand-accent"></i> Upload Images
-                    </h3>
-                    <p className="text-brand-muted leading-relaxed text-sm">Drag and drop your visual inspiration into the dashed upload area, or click to select files. You can queue up multiple images simultaneously.</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-8 items-start group">
-                  <div className="w-12 h-12 rounded-full bg-brand-surface text-brand-accent flex items-center justify-center font-black text-xl flex-shrink-0 border-2 border-brand-accent shadow-[0_0_15px_rgba(245,158,11,0.5)] group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-white transition-all z-10 relative md:ml-0 mx-auto md:mx-0">
-                    3
-                  </div>
-                  <div className="bg-brand-muted/10 border border-brand-muted/20 rounded-3xl p-8 flex-grow group-hover:border-brand-accent/50 transition-colors">
-                    <h3 className="text-2xl font-black text-brand-white mb-3 flex items-center gap-3">
-                      <i className="fa-solid fa-sliders text-brand-accent"></i> Customize & Synthesize
-                    </h3>
-                    <p className="text-brand-muted leading-relaxed text-sm">Select optional Color Themes and Art Styles to guide the AI. Click "Synthesize Queue" to process all images, or generate them individually.</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-8 items-start group">
-                  <div className="w-12 h-12 rounded-full bg-brand-surface text-brand-accent flex items-center justify-center font-black text-xl flex-shrink-0 border-2 border-brand-accent shadow-[0_0_15px_rgba(245,158,11,0.5)] group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-white transition-all z-10 relative md:ml-0 mx-auto md:mx-0">
-                    4
-                  </div>
-                  <div className="bg-brand-muted/10 border border-brand-muted/20 rounded-3xl p-8 flex-grow group-hover:border-brand-accent/50 transition-colors">
-                    <h3 className="text-2xl font-black text-brand-white mb-3 flex items-center gap-3">
-                      <i className="fa-solid fa-copy text-brand-accent"></i> Copy Prompts
-                    </h3>
-                    <p className="text-brand-muted leading-relaxed text-sm">Review the highly detailed extracted prompt. Click the copy icon in the corner to instantly copy it to your clipboard for use in Midjourney or Stable Diffusion.</p>
-                  </div>
-                </div>
+                ))}
               </div>
-            </div>
-            <div className="mt-16 text-center">
-              <button 
-                onClick={() => setCurrentRoute('home')}
-                className="bg-white text-black px-8 py-4 rounded-2xl font-black shadow-xl hover:bg-brand-accent hover:text-brand-white transition-all transform hover:-translate-y-1">
-                Start Generating <i className="fa-solid fa-wand-magic-sparkles ml-2"></i>
-              </button>
             </div>
           </div>
         </div>
       )}
 
       {currentRoute === 'contact' && (
-        <div className="max-w-4xl mx-auto px-4 py-24 min-h-[70vh] flex items-center justify-center">
-          <div className="text-center space-y-6">
-            <i className="fa-solid fa-envelope-open-text text-7xl text-brand-accent mb-4 opacity-50"></i>
-            <h2 className="text-4xl font-black text-brand-white">Get in Touch</h2>
-            <p className="text-brand-muted max-w-md mx-auto">Have questions, feedback, or need support? Reach out to us.</p>
-            <p className="text-xl font-bold text-brand-accent">hello@lens2prompt.labs</p>
+        <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
+          <div className="text-center space-y-4">
+            <i className="fa-solid fa-envelope-open-text text-6xl text-brand-accent opacity-50 mb-2"></i>
+            <h2 className="text-3xl font-black text-brand-white">Get in Touch</h2>
+            <p className="text-sm text-brand-muted max-w-sm mx-auto">Have questions, feedback, or need support? Reach out to us.</p>
+            <p className="text-lg font-bold text-brand-accent">hello@lens2prompt.labs</p>
           </div>
         </div>
       )}
 
-      <footer className="mt-auto pt-16 pb-8 border-t border-brand-muted/20 flex flex-col items-center gap-8">
-        <div className="flex gap-10 text-neutral-600 text-2xl">
+      <footer className="shrink-0 h-12 border-t border-brand-muted/20 flex items-center justify-between px-6 bg-black z-50 relative">
+        <div className="flex gap-6 text-neutral-600 text-lg">
           <a href="https://github.com/nurangakaushalya" target="_blank" rel="noopener noreferrer">
-            <i className="fa-brands fa-github hover:text-brand-white transition-all cursor-pointer hover:scale-125"></i>
+            <i className="fa-brands fa-github hover:text-brand-white transition-all"></i>
           </a>
           <a href="https://www.linkedin.com/in/nuranga-kaushalya-5476622ba/" target="_blank" rel="noopener noreferrer">
-            <i className="fa-brands fa-linkedin hover:text-[#0077b5] transition-all cursor-pointer hover:scale-125"></i>
+            <i className="fa-brands fa-linkedin hover:text-[#0077b5] transition-all"></i>
           </a>
         </div>
-        <div className="text-center space-y-2">
-          <p className="text-brand-muted/70 text-[10px] font-black tracking-[0.4em] uppercase">
-            Developed by <span className="text-transparent bg-clip-text bg-brand-accent">Nuranga Kaushalya</span>
-          </p>
-          <p className="text-neutral-700 text-[10px] font-medium tracking-widest uppercase">© 2026 Lens2Prompt Labs • All Rights Reserved</p>
-        </div>
+        <p className="text-brand-muted/50 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hidden md:flex">
+          Developed by <span className="text-brand-accent">Nuranga Kaushalya</span> © 2026
+        </p>
       </footer>
     </div>
   );
