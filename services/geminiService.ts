@@ -2,14 +2,19 @@
 import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
 import { AnalysisResult } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
-
 export const analyzeImage = async (
   base64Data: string,
   mimeType: string,
+  apiKey: string,
   colorTheme?: string,
   additionalStyle?: string
 ): Promise<AnalysisResult> => {
+  if (!apiKey) {
+    throw new Error("Gemini API Key is required to analyze images.");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+
   const refinementContext = `
     ${colorTheme ? `IMPORTANT: Enhance the description to emphasize a '${colorTheme}' color theme.` : ''}
     ${additionalStyle ? `IMPORTANT: Transform the artistic direction to follow a '${additionalStyle}' style.` : ''}
