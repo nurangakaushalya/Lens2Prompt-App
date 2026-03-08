@@ -49,9 +49,10 @@ const App: React.FC = () => {
       setImages(prev => prev.map(img => 
         img.id === id ? { ...img, status: 'completed', result: data } : img
       ));
-    } catch (err) {
+    } catch (err: any) {
+      console.error("Gemini Error:", err);
       setImages(prev => prev.map(img => 
-        img.id === id ? { ...img, status: 'error', error: 'Failed to analyze' } : img
+        img.id === id ? { ...img, status: 'error', error: err.message || 'Failed to analyze' } : img
       ));
     }
   };

@@ -2,12 +2,12 @@
 import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
 import { AnalysisResult } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 export const analyzeImage = async (
-  base64Data: string, 
-  mimeType: string, 
-  colorTheme?: string, 
+  base64Data: string,
+  mimeType: string,
+  colorTheme?: string,
   additionalStyle?: string
 ): Promise<AnalysisResult> => {
   const refinementContext = `
@@ -16,7 +16,7 @@ export const analyzeImage = async (
   `;
 
   const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
+    model: 'gemini-2.5-flash',
     contents: {
       parts: [
         {
@@ -57,6 +57,6 @@ export const analyzeImage = async (
 
   const text = response.text;
   if (!text) throw new Error("No response from AI");
-  
+
   return JSON.parse(text) as AnalysisResult;
 };
