@@ -14,6 +14,7 @@ const App: React.FC = () => {
   const [currentRoute, setCurrentRoute] = useState<'home' | 'about' | 'how-to' | 'contact'>('home');
   const [apiKey, setApiKey] = useState<string>('');
   const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const savedKey = localStorage.getItem('gemini_api_key');
@@ -182,8 +183,42 @@ const App: React.FC = () => {
               <i className="fa-solid fa-key text-brand-accent"></i>
               {apiKey ? 'API Key Configured' : 'Set API Key'}
             </button>
+
+            {/* Hamburger Button */}
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden text-brand-white hover:text-brand-accent transition-colors p-1"
+            >
+              <i className={`fa-solid ${isMenuOpen ? 'fa-xmark' : 'fa-bars'} text-xl`}></i>
+            </button>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden border-t border-brand-muted/20 bg-brand-base/30 px-6 py-4 flex flex-col gap-4">
+            <button 
+              onClick={() => { setCurrentRoute('home'); setIsMenuOpen(false); }}
+              className={`text-left text-sm font-semibold transition-colors ${currentRoute === 'home' ? 'text-brand-accent' : 'text-brand-muted hover:text-brand-white'}`}>
+              Home
+            </button>
+            <button 
+              onClick={() => { setCurrentRoute('about'); setIsMenuOpen(false); }}
+              className={`text-left text-sm font-semibold transition-colors ${currentRoute === 'about' ? 'text-brand-accent' : 'text-brand-muted hover:text-brand-white'}`}>
+              About
+            </button>
+            <button 
+              onClick={() => { setCurrentRoute('how-to'); setIsMenuOpen(false); }}
+              className={`text-left text-sm font-semibold transition-colors ${currentRoute === 'how-to' ? 'text-brand-accent' : 'text-brand-muted hover:text-brand-white'}`}>
+              How to Use
+            </button>
+            <button 
+              onClick={() => { setCurrentRoute('contact'); setIsMenuOpen(false); }}
+              className={`text-left text-sm font-semibold transition-colors ${currentRoute === 'contact' ? 'text-brand-accent' : 'text-brand-muted hover:text-brand-white'}`}>
+              Contact Us
+            </button>
+          </div>
+        )}
       </nav>
 
       {/* API Key Modal */}
@@ -483,7 +518,7 @@ const App: React.FC = () => {
             <i className="fa-solid fa-envelope-open-text text-6xl text-brand-accent opacity-50 mb-2"></i>
             <h2 className="text-3xl font-black text-brand-white">Get in Touch</h2>
             <p className="text-sm text-brand-muted max-w-sm mx-auto">Have questions, feedback, or need support? Reach out to us.</p>
-            <p className="text-lg font-bold text-brand-accent">hello@lens2prompt.labs</p>
+            <p className="text-lg font-bold text-brand-accent">kaushalyanuranga@gmai.com</p>
           </div>
         </div>
       )}
